@@ -1,0 +1,17 @@
+name: env_pytorch
+channels:
+  - defaults
+  - pytorch
+dependencies:
+  - numpy
+  - pandas>=1.0.0
+  - matplotlib
+  - pillow
+  - pip
+  - plotly
+  - scikit-learn
+  - seaborn
+  - python>=3.7.4
+  - jupyter
+  - pytorch>=1.7.1
+  - torchvision>=0.8.2
