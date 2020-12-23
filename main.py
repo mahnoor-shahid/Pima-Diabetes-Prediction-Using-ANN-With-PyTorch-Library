@@ -1,38 +1,44 @@
 ########## loading necessary libraries ##########
 import pandas as pd
 import numpy as np
+import matplotlib as plt
 from sklearn.model_selection import train_test_split
 import torch
-# import torch.nn as nn
-import torch.nn.functional as F
-import ANN_model as ann
+from torch.utils.data import DataLoader
+import classes.model as ann
+import classes.dataLoader as dL
 
 ########## main program ##########
 if __name__ == '__main__':
 
-    # loading dataset
-    dataset = pd.read_csv('dataset\\diabetes.csv')
-    # exploring the uploaded data frame
-    print(dataset.head())
+    ########## fetching dataset from the loader ##########
+    dataset = dL.datasetLoader(path = '.\\dataset\\diabetes.csv')
 
-    # checking for the missing values 
-    dataset.isnull().sum()
+    ########## setting up training data ##########
+    train_loader = DataLoader(dataset=dataset,
+                            batch_size=64,
+                            shuffle=True)
 
-    # replacing outcome values with 'diabetic' and 'not diabetic'
-    dataset['Outcome'] = np.where(dataset['Outcome']==1,'Diabetic', 'Not Diabetic')
-    # checking the values of outcome
-    print(np.unique(dataset['Outcome']))
+    ########## Instantiate ANN model ##########
+    model = ann.ANN_model()
+    print(model.parameters)
 
-    ########## splitting dataset into training and testing data ##########
-    y = dataset['Outcome'].values ## dependent variable
-    X = dataset.drop('Outcome', axis=1).values ## independent variables
+    ########## Loss Function and Optimizer ##########
+    loss_function = torch.nn.CrossEntropyLoss()
+    optimizer = torch.optim.SGD(model.parameters(), lr=0.01)
 
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+    ########## Training Loop ##########
+    for epoch in range(10):
+        for i, data in enumerate(train_loader, 0):
 
-    ########## Creating tensors ##########
-    X_train = torch.FloatTensor(X_train)
-    X_test = torch.FloatTensor(X_train)
-    y_train = torch.FloatTensor(X_train)
-    y_test = torch.FloatTensor(X_train)
+            # get the inputs
+            inputs, labels = data
+            y_pred = model.forward(inputs)
 
-    a = ann()
+            loss = loss_function(y_pred, torch.max(labels,1)[1])
+
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
+
+        print("Epoch Number {} and the loss is : {} ".format(epoch, loss.item()))
