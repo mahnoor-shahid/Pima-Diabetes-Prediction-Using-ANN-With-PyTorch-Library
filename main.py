@@ -18,6 +18,11 @@ if __name__ == '__main__':
     train_loader = DataLoader(dataset=dataset,
                             batch_size=64,
                             shuffle=True)
+    
+    ########## setting up testing data ##########
+    test_loader = DataLoader(dataset=dataset,
+                            batch_size=64,
+                            shuffle=True)
 
     ########## Instantiate ANN model ##########
     model = ann.ANN_model()
